@@ -44,7 +44,7 @@ in VS_OUT{
 void main()
 {
     vec3 viewDir = normalize(fs_in.FragPos - uCameraPos);
-    hitInfo h = boxIntersect(uCameraPos, viewDir, uVolumeBoxMin + vec3(0.125), uVolumeBoxMax - vec3(0.125));
+    hitInfo h = boxIntersect(uCameraPos, viewDir, uVolumeBoxMin, uVolumeBoxMax);
 
     vec3 color = h.hit ? fs_in.FragPos : vec3(1.0, 0.0, 1.0);
 

@@ -67,7 +67,13 @@ void MyLayer::OnAttach() {
 
 	// Volume
 	m_Volume = CreateRef<VolumeCube>(glm::vec3(-0.5f), glm::vec3(0.5f));
-
+	m_Volume->SetTransform(
+		{
+			glm::vec3(0.0f),
+			glm::vec3(0.0f),
+			glm::vec3(1.0f, 1.7f, 1.0f),
+		}
+	);
 }
 
 bool MyLayer::OnMouseMovement(MouseMovedEvent& e) {
