@@ -77,7 +77,12 @@ void main() {
     // Attenuation
     float attenuation = 1.0 / pow(length(uLightPos - fs_in.FragPos), 2.0);
 
-    vec3 lum = uLightColor * (diffuse + specular) * uLightPower * attenuation;
+    // Ambient
+    vec3 ambient = 0.2 * color.rgb;
+
+    vec3 lum = vec3(diffuse + specular) * uLightPower;
+    lum *= attenuation;
+    lum += ambient;
 
     FragColor = vec4(lum * color.rgb, 1.0f);
 
