@@ -66,7 +66,7 @@ void MyLayer::OnAttach() {
 	m_FloorTextureNormal = Texture2D::Create("res/textures/Substance_Graph_Normal.jpg");
 
 	// Volume
-	m_Volume = CreateRef<VolumeCube>(glm::vec3(-0.5f), glm::vec3(0.5f));
+	m_Volume = CreateRef<VolumeCube>(glm::vec3(-0.5f), glm::vec3(0.5f), 0.5f);
 	m_Volume->SetTransform(
 		{
 			glm::vec3(0.0f),
@@ -146,9 +146,10 @@ void MyLayer::OnUpdate(Timestep ts) {
 		shader->SetMat4("uViewMatrix", m_CameraController.GetCamera()->GetViewMatrix());
 		shader->SetMat4("uModelMatrix", m_Volume->GetModelMatrix());
 
-		// bounding box parameters
+		// volume parameters
 		shader->SetVec3("uVolumeBoxMin", m_Volume->GetMin());
 		shader->SetVec3("uVolumeBoxMax", m_Volume->GetMax());
+		shader->SetFloat("uDensity", m_Volume->GetDensity());
 		// inverse model
 		shader->SetMat4("uInverseModelMatrix", m_Volume->GetInverseModelMatrix());
 
@@ -189,6 +190,12 @@ void MyLayer::OnImGuiRender()
 			ImGui::SliderFloat3("rot", &t.Rotation[0], -180.0f, 180.0f);
 			ImGui::Text("Scale");
 			ImGui::SliderFloat3("sc", &t.Scale[0], 0.25, 5.0f);
+
+			float density = m_Volume->GetDensity();
+			ImGui::Text("Density");
+			ImGui::SliderFloat("d", &density, 0.01f, 20.0f);
+			m_Volume->SetDensity(density);
+
 			m_Volume->SetTransform(t);
 			ImGui::EndTabItem();
 		}
@@ -197,8 +204,8 @@ void MyLayer::OnImGuiRender()
 	ImGui::End();
 }
 
-VolumeCube::VolumeCube(glm::vec3 min, glm::vec3 max)
-	: m_Min(min), m_Max(max)
+VolumeCube::VolumeCube(glm::vec3 min, glm::vec3 max, float density)
+	: m_Min(min), m_Max(max), m_Density(density)
 {
 	float vertices[] =
 	{

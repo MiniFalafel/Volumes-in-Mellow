@@ -27,22 +27,25 @@ class VolumeCube
 	Transform3D m_Transform;
 	// shader params
 	glm::vec3 m_Min, m_Max;
+	float m_Density;
 
 public:
-	VolumeCube(glm::vec3 min, glm::vec3 max);
+	VolumeCube(glm::vec3 min, glm::vec3 max, float density);
 
 	// Transform
 	Transform3D GetTransform() { return m_Transform; }
 	void SetTransform(Transform3D t) { m_Transform = t; }
 
-	// Get inverse model matrix
+	// Getters
 	glm::mat4 GetModelMatrix();
 	glm::mat4 GetInverseModelMatrix();
-	// Get Mesh
 	Ref<Mesh> GetMesh() { return m_Mesh; }
-	// min and max
 	glm::vec3 GetMin() { return m_Min; }
 	glm::vec3 GetMax() { return m_Max; }
+	float GetDensity() { return m_Density; }
+
+	// Setters
+	void SetDensity(float density) { m_Density = density; }
 
 private:
 };

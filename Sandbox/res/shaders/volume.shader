@@ -25,10 +25,12 @@ out vec4 FragColor;
 
 uniform vec3 uVolumeBoxMin;
 uniform vec3 uVolumeBoxMax;
+uniform mat4 uInverseModelMatrix;
 
 uniform vec3 uCameraPos;
 
-uniform mat4 uInverseModelMatrix;
+uniform int uDensitySteps = 4; // default of 4
+uniform float uDensity;
 
 struct hitInfo
 {
@@ -39,6 +41,8 @@ struct hitInfo
 
 hitInfo boxIntersect(vec3 rOrigin, vec3 rDir, vec3 bMin, vec3 bMax);
 
+float DensityInBox(vec3 samplePoint, vec3 bMin, vec3 bMax);
+
 in VS_OUT{
     vec3 FragPos;
 } fs_in;
@@ -47,10 +51,19 @@ void main()
 {
     vec3 origin = vec3(uInverseModelMatrix * vec4(uCameraPos, 1.0));
     vec3 viewDir = normalize(fs_in.FragPos - uCameraPos);
-    viewDir = normalize(mat3(uInverseModelMatrix) * viewDir); // mat3 to remove the translation step.
+    viewDir = normalize(mat3(uInverseModelMatrix) * viewDir); // mat3 to remove the translation (because we were applying it twice).
     hitInfo h = boxIntersect(origin, viewDir, uVolumeBoxMin, uVolumeBoxMax);
 
-    vec3 color = h.hit ? vec3(h.tmin) / 4.0 : vec3(1.0, 0.0, 1.0);
+    // split the volume into steps to sample the density at each step.
+    float stepSize = (h.tmax - h.tmin) / uDensitySteps;
+    vec3 p = origin + (h.tmin * viewDir);
+    float totalDensity = 0.0f;
+    for (int step = 0; step < uDensitySteps; step++)
+    {
+        totalDensity += DensityInBox(p + step * stepSize, uVolumeBoxMin, uVolumeBoxMax) * stepSize;
+    }
+
+    vec3 color = vec3(totalDensity);
 
 	FragColor = vec4(color, 1.0);
 }
@@ -80,4 +93,9 @@ hitInfo boxIntersect(vec3 rOrigin, vec3 rDir, vec3 bMin, vec3 bMax)
     h.tmax = min(tmaxz, tmax);
 
     return h;
+}
+
+float DensityInBox(vec3 samplePoint, vec3 bMin, vec3 bMax)
+{
+    return uDensity;
 }
