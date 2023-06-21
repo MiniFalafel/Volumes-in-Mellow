@@ -70,8 +70,8 @@ void MyLayer::OnAttach() {
 	m_Volume->SetTransform(
 		{
 			glm::vec3(0.0f),
-			glm::vec3(30.0f),
-			glm::vec3(2.0f),
+			glm::vec3(0.0f),
+			glm::vec3(1.0f),
 		}
 	);
 }
@@ -178,6 +178,18 @@ void MyLayer::OnImGuiRender()
 			ImGui::ColorPicker3("Col", &m_PointLight.Color[0]);
 			ImGui::Text("Power");
 			ImGui::SliderFloat("Pow", &m_PointLight.Power, 0.0f, 20.0f);
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Volume 'Cube'"))
+		{
+			Transform3D t = m_Volume->GetTransform();
+			ImGui::Text("Translation");
+			ImGui::SliderFloat3("tr", &t.Position[0], -3.0f, 3.0f);
+			ImGui::Text("Rotation");
+			ImGui::SliderFloat3("rot", &t.Rotation[0], -180.0f, 180.0f);
+			ImGui::Text("Scale");
+			ImGui::SliderFloat3("sc", &t.Scale[0], 0.25, 5.0f);
+			m_Volume->SetTransform(t);
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();

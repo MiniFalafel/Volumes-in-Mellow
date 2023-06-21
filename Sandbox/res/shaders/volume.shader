@@ -47,10 +47,10 @@ void main()
 {
     vec3 origin = vec3(uInverseModelMatrix * vec4(uCameraPos, 1.0));
     vec3 viewDir = normalize(fs_in.FragPos - uCameraPos);
-    viewDir = normalize(vec3(uInverseModelMatrix * vec4(viewDir, 1.0)));
+    viewDir = normalize(mat3(uInverseModelMatrix) * viewDir); // mat3 to remove the translation step.
     hitInfo h = boxIntersect(origin, viewDir, uVolumeBoxMin, uVolumeBoxMax);
 
-    vec3 color = h.hit ? vec3(h.tmin) : vec3(1.0, 0.0, 1.0);
+    vec3 color = h.hit ? vec3(h.tmin) / 4.0 : vec3(1.0, 0.0, 1.0);
 
 	FragColor = vec4(color, 1.0);
 }
