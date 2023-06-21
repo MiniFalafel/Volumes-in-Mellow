@@ -20,6 +20,29 @@ struct CameraToggleCallbackParams
 
 using namespace Mellow;
 
+class VolumeCube
+{
+	// mesh data
+	Ref<Mesh> m_Mesh;
+	Transform3D m_Transform;
+	// shader params
+	glm::vec3 m_Min, m_Max;
+
+public:
+	VolumeCube(glm::vec3 min, glm::vec3 max);
+
+	// Transform
+	Transform3D GetTransform() { return m_Transform; }
+	void SetTransform(Transform3D t) { m_Transform = t; }
+
+	// Get inverse model matrix
+	glm::mat4 GetModelMatrix();
+	// Get Mesh
+	Ref<Mesh> GetMesh() { return m_Mesh; }
+
+private:
+};
+
 class MyLayer : public Layer {
 
 	bool OnMouseMovement(MouseMovedEvent& e);
@@ -49,6 +72,9 @@ private:
 	Ref<Texture2D> m_FloorTextureNormal;
 	float m_FloorTextureScale = 3.0f;
 	Transform3D m_FloorPlaneT;
+
+	// Volume Cube
+	Ref<VolumeCube> m_Volume;
 
 	// Lighting
 	struct PointLight

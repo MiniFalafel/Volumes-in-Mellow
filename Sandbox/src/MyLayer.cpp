@@ -24,6 +24,7 @@ void MyLayer::OnAttach() {
 
 	// Shader
 	m_ShaderLib.Load("res/shaders/floor plane.shader");
+	m_ShaderLib.Load("res/shaders/volume.shader");
 
 	// Camera Settings
 	m_CameraController.SetMouseSensitivity(0.7f);
@@ -64,6 +65,9 @@ void MyLayer::OnAttach() {
 	m_FloorTextureRoughness = Texture2D::Create("res/textures/Substance_Graph_Roughness.jpg");
 	m_FloorTextureNormal = Texture2D::Create("res/textures/Substance_Graph_Normal.jpg");
 
+	// Volume
+	m_Volume = CreateRef<VolumeCube>(glm::vec3(-0.5f), glm::vec3(0.5f));
+
 }
 
 bool MyLayer::OnMouseMovement(MouseMovedEvent& e) {
@@ -101,28 +105,44 @@ void MyLayer::OnUpdate(Timestep ts) {
 	m_CameraController.CheckInputs();
 	m_CameraController.Update(ts);
 
-	Ref<Shader>& shader = m_ShaderLib.Get("floor plane");
-	shader->Use();
-	shader->SetVec3("uCameraPos", m_CameraController.GetCamera()->GetPosition());
+	{
+		Ref<Shader>& shader = m_ShaderLib.Get("floor plane");
+		shader->Use();
+		shader->SetVec3("uCameraPos", m_CameraController.GetCamera()->GetPosition());
 
-	shader->SetMat4("uProjectionMatrix", m_CameraController.GetCamera()->GetProjectionMatrixPerspective());
-	shader->SetMat4("uViewMatrix", m_CameraController.GetCamera()->GetViewMatrix());
+		shader->SetMat4("uProjectionMatrix", m_CameraController.GetCamera()->GetProjectionMatrixPerspective());
+		shader->SetMat4("uViewMatrix", m_CameraController.GetCamera()->GetViewMatrix());
 
-	// Bind textures
-	m_FloorTextureAlbedo->Bind(1);
-	m_FloorTextureRoughness->Bind(2);
-	m_FloorTextureNormal->Bind(3);
-	shader->SetInt("uBaseTexture", 1);
-	shader->SetInt("uRoughnessTexture", 2);
-	shader->SetInt("uNormalTexture", 3);
-	shader->SetFloat("uTextureSampleSize", m_FloorTextureScale);
-	// Light Uniforms
-	shader->SetVec3("uLightPos", m_PointLight.Position);
-	shader->SetVec3("uLightColor", m_PointLight.Color);
-	shader->SetFloat("uLightPower", m_PointLight.Power);
+		// Bind textures
+		m_FloorTextureAlbedo->Bind(1);
+		m_FloorTextureRoughness->Bind(2);
+		m_FloorTextureNormal->Bind(3);
+		shader->SetInt("uBaseTexture", 1);
+		shader->SetInt("uRoughnessTexture", 2);
+		shader->SetInt("uNormalTexture", 3);
+		shader->SetFloat("uTextureSampleSize", m_FloorTextureScale);
+		// Light Uniforms
+		shader->SetVec3("uLightPos", m_PointLight.Position);
+		shader->SetVec3("uLightColor", m_PointLight.Color);
+		shader->SetFloat("uLightPower", m_PointLight.Power);
 
-	shader->SetMat4("uModelMatrix", m_FloorPlaneMesh->GetModelMatrix());
-	RenderCommand::DrawIndexed(m_FloorPlaneMesh->GetVAO());
+		// Draw floor plane
+		shader->SetMat4("uModelMatrix", m_FloorPlaneMesh->GetModelMatrix());
+		RenderCommand::DrawIndexed(m_FloorPlaneMesh->GetVAO());
+	}
+
+	{
+		Ref<Shader>& shader = m_ShaderLib.Get("volume");
+		shader->Use();
+		shader->SetVec3("uCameraPos", m_CameraController.GetCamera()->GetPosition());
+		// matrices
+		shader->SetMat4("uProjectionMatrix", m_CameraController.GetCamera()->GetProjectionMatrixPerspective());
+		shader->SetMat4("uViewMatrix", m_CameraController.GetCamera()->GetViewMatrix());
+		shader->SetMat4("uModelMatrix", m_Volume->GetModelMatrix());
+
+		// Draw the volume cube mesh
+		RenderCommand::DrawIndexed(m_Volume->GetMesh()->GetVAO());
+	}
 }
 
 void MyLayer::OnImGuiRender()
@@ -151,4 +171,52 @@ void MyLayer::OnImGuiRender()
 		ImGui::EndTabBar();
 	}
 	ImGui::End();
+}
+
+VolumeCube::VolumeCube(glm::vec3 min, glm::vec3 max)
+	: m_Min(min), m_Max(max)
+{
+	float vertices[] =
+	{
+		min[0], min[1], min[2],
+		max[0], min[1], min[2],
+		max[0], min[1], max[2],
+		min[0], min[1], max[2],
+		min[0], max[1], min[2],
+		max[0], max[1], min[2],
+		max[0], max[1], max[2],
+		min[0], max[1], max[2],
+	};
+
+	uint32_t indices[] =
+	{
+		0, 1, 2,
+		2, 3, 0,
+
+		0, 1, 5,
+		5, 4, 0,
+
+		1, 2, 6,
+		6, 5, 1,
+
+		2, 3, 7,
+		7, 6, 2,
+
+		3, 0, 4,
+		4, 7, 3,
+
+		4, 5, 6,
+		6, 7, 4,
+	};
+
+	m_Mesh = CreateRef<Mesh>("hadn't thought this far yet", vertices, sizeof(vertices), indices, sizeof(indices),
+		VertexLayout({
+			{"aPosition", DataType::Vec3},
+		})
+	);
+}
+
+glm::mat4 VolumeCube::GetModelMatrix()
+{
+	return m_Transform.GetModelMatrix();
 }
