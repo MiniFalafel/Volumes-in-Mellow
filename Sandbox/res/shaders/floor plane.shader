@@ -46,16 +46,34 @@ in VS_OUT{
     vec3 Normal;
 } fs_in;
 
+float getSpecularFromRoughness(float r, float maxSpec)
+{
+    return pow(256.0, 1.0 - r);
+    //return maxSpec - (maxSpec * r); // just interpolate I guess
+}
+
 void main() {
 
     // Base color
-    vec4 color = texture(uBaseTexture, fs_in.TexCoords.xy * uTextureSampleSize);
+    vec2 texCoords = fs_in.TexCoords.xy * uTextureSampleSize;
+    vec4 color = texture(uBaseTexture, texCoords);
 
     // Basic diffuse lighting
     vec3 normal = normalize(fs_in.Normal);
     vec3 lightDir = normalize(fs_in.FragPos - uLightPos);
-    vec3 diffuse = color.rgb * max(dot(normal, -lightDir), 0.0);
+    float diffuse = max(dot(normal, -lightDir), 0.0);
 
-    FragColor = vec4(diffuse, 1.0f);// vec4(fs_in.TexCoords, 0.0, 1.0);
+    // Basic specular lighting (with suuuper scuffed math that hopefully looks kinda like it works I guess.)
+    float roughness = texture(uRoughnessTexture, texCoords).r;
+    vec3 viewDir = normalize(fs_in.FragPos - uCameraPos);
+    vec3 reflectDir = normalize(reflect(lightDir, normal));
+    float specular = pow(max(dot(viewDir, -reflectDir), 0.0), pow(256.0, 1.0 - roughness));
+
+    // Attenuation
+    float attenuation = 1.0 / pow(length(uLightPos - fs_in.FragPos), 2.0);
+
+    vec3 lum = uLightColor * (diffuse + specular) * uLightPower * attenuation;
+
+    FragColor = vec4(lum * color.rgb, 1.0f);// vec4(fs_in.TexCoords, 0.0, 1.0);
 
 }

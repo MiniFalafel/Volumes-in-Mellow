@@ -46,7 +46,7 @@ private:
 	Ref<Mesh> m_FloorPlaneMesh;
 	Ref<Texture2D> m_FloorTextureAlbedo;
 	Ref<Texture2D> m_FloorTextureRoughness;
-	float m_FloorTextureScale = 1.0f;
+	float m_FloorTextureScale = 3.0f;
 	Transform3D m_FloorPlaneT;
 
 	// Lighting

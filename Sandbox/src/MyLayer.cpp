@@ -142,7 +142,7 @@ void MyLayer::OnImGuiRender()
 			ImGui::Text("Color");
 			ImGui::ColorPicker3("Col", &m_PointLight.Color[0]);
 			ImGui::Text("Power");
-			ImGui::SliderFloat("Pow", &m_PointLight.Power, 0.0f, 3.0f);
+			ImGui::SliderFloat("Pow", &m_PointLight.Power, 0.0f, 20.0f);
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();
