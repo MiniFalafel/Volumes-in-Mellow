@@ -26,6 +26,11 @@ void main() {
 
 out vec4 FragColor;
 
+uniform sampler2D uBaseTexture;
+uniform sampler2D uRoughnessTexture;
+
+uniform float uTextureSampleSize;
+
 in VS_OUT{
     vec2 TexCoords;
     vec3 FragPos;
@@ -33,6 +38,9 @@ in VS_OUT{
 
 void main() {
 
-    FragColor = vec4(fs_in.TexCoords, 0.0, 1.0);
+    // Base color
+    vec4 color = texture(uBaseTexture, fs_in.TexCoords.xy * uTextureSampleSize);
+
+    FragColor = color;// vec4(fs_in.TexCoords, 0.0, 1.0);
 
 }

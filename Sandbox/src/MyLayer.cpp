@@ -57,6 +57,9 @@ void MyLayer::OnAttach() {
 		glm::vec3(0.0f),
 		glm::vec3(10.0f),
 	});
+	// Floor textures
+	m_FloorTextureAlbedo = Texture2D::Create("res/textures/Substance_Graph_BaseColor.jpg");
+	m_FloorTextureRoughness = Texture2D::Create("res/textures/Substance_Graph_Roughness.jpg");
 
 }
 
@@ -100,6 +103,13 @@ void MyLayer::OnUpdate(Timestep ts) {
 	shader->SetMat4("uProjectionMatrix", m_CameraController.GetCamera()->GetProjectionMatrixPerspective());
 	shader->SetMat4("uViewMatrix", m_CameraController.GetCamera()->GetViewMatrix());
 
+	// Bind textures
+	m_FloorTextureAlbedo->Bind(1);
+	m_FloorTextureRoughness->Bind(2);
+	shader->SetInt("uBaseTexture", 1);
+	shader->SetInt("uRoughnessTexture", 2);
+	shader->SetFloat("uTextureSampleSize", m_FloorTextureScale);
+
 	shader->SetMat4("uModelMatrix", m_FloorPlaneMesh->GetModelMatrix());
 	RenderCommand::DrawIndexed(m_FloorPlaneMesh->GetVAO());
 }
@@ -111,7 +121,8 @@ void MyLayer::OnImGuiRender()
 	{
 		if (ImGui::BeginTabItem("A"))
 		{
-			ImGui::Text("There's something \nimportant in the \nother tab that \nyou should see...");
+			ImGui::Text("Texture Scale");
+			ImGui::SliderFloat("Scale", &m_FloorTextureScale, 0.01f, 20.0f);
 			ImGui::EndTabItem();
 		}
 		if(ImGui::BeginTabItem("B"))

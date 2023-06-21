@@ -9,8 +9,9 @@
 #include "Mellow/Renderer/Renderer.h"
 #include "Mellow/Renderer/Shader.h"
 
-// Mesh
+// Mesh/Scene stuff
 #include "Mellow/Renderer/Geometry/Mesh.h"
+#include "Mellow/Renderer/Texture.h"
 
 struct CameraToggleCallbackParams
 {
@@ -43,5 +44,8 @@ private:
 
 	// Ground Plane
 	Ref<Mesh> m_FloorPlaneMesh;
+	Ref<Texture2D> m_FloorTextureAlbedo;
+	Ref<Texture2D> m_FloorTextureRoughness;
+	float m_FloorTextureScale = 1.0f;
 
 };
