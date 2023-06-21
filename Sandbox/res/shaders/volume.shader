@@ -50,7 +50,7 @@ void main()
     viewDir = normalize(vec3(uInverseModelMatrix * vec4(viewDir, 1.0)));
     hitInfo h = boxIntersect(origin, viewDir, uVolumeBoxMin, uVolumeBoxMax);
 
-    vec3 color = h.hit ? fs_in.FragPos : vec3(1.0, 0.0, 1.0);
+    vec3 color = h.hit ? vec3(h.tmin) : vec3(1.0, 0.0, 1.0);
 
 	FragColor = vec4(color, 1.0);
 }
