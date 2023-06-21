@@ -80,7 +80,7 @@ void main() {
     // Ambient
     vec3 ambient = 0.2 * color.rgb;
 
-    vec3 lum = vec3(diffuse + specular) * uLightPower;
+    vec3 lum = vec3(diffuse + specular) * uLightPower * uLightColor;
     lum *= attenuation;
     lum += ambient;
 
