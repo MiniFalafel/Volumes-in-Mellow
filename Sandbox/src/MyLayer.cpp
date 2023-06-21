@@ -69,8 +69,8 @@ void MyLayer::OnAttach() {
 	m_Volume = CreateRef<VolumeCube>(glm::vec3(-0.5f), glm::vec3(0.5f));
 	m_Volume->SetTransform(
 		{
-			glm::vec3(1.0f),
-			glm::vec3(30.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f),
+			glm::vec3(30.0f),
 			glm::vec3(2.0f),
 		}
 	);
