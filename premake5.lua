@@ -1,4 +1,4 @@
-workspace "Mellow"
+workspace "Volumes in Mellow"
 	architecture "x86_64"
 	startproject "Sandbox"
 	
