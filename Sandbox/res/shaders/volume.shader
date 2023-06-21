@@ -43,9 +43,18 @@ hitInfo boxIntersect(vec3 rOrigin, vec3 rDir, vec3 bMin, vec3 bMax);
 
 float DensityInBox(vec3 samplePoint, vec3 bMin, vec3 bMax);
 
+float transmittance(float density)
+{
+    return exp(-density); 
+}
+
 in VS_OUT{
     vec3 FragPos;
 } fs_in;
+
+float rand(vec2 co) {
+    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
 
 void main()
 {
@@ -63,7 +72,11 @@ void main()
         totalDensity += DensityInBox(p + step * stepSize, uVolumeBoxMin, uVolumeBoxMax) * stepSize;
     }
 
-    vec3 color = vec3(totalDensity);
+    float t = transmittance(totalDensity);
+    if (rand(normalize(fs_in.FragPos - uCameraPos).xy) < t)
+        discard;
+
+    vec3 color = vec3(0.0);
 
 	FragColor = vec4(color, 1.0);
 }
@@ -89,13 +102,13 @@ hitInfo boxIntersect(vec3 rOrigin, vec3 rDir, vec3 bMin, vec3 bMax)
 
     h.hit = !(tminx > tmaxy || tminy > tmaxx || tmin > tmaxz || tminz > tmax); // puke.
 
-    h.tmin = max(tminz, tmin);
-    h.tmax = min(tmaxz, tmax);
+    h.tmin = max(max(tminz, tmin), 0.0);
+    h.tmax = max(min(tmaxz, tmax), 0.0);
 
     return h;
 }
 
 float DensityInBox(vec3 samplePoint, vec3 bMin, vec3 bMax)
 {
-    return uDensity;
+    return uDensity; // maybe replace this with a noise sampler later on?
 }
