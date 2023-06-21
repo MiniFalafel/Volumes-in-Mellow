@@ -36,17 +36,7 @@ private:
 	CameraController m_CameraController;
 	CameraToggleCallbackParams m_CamToggleParams = { true, };
 
-	Ref<Model> m_Model;
-	Ref<Mesh> m_Mesh;
-	Ref<Texture2D> m_Texture;
-
+	// Shader
 	ShaderLibrary m_ShaderLib;
-	// Uniforms
-	glm::vec4 m_UniformColor = glm::vec4(1.0);
-	glm::vec3 m_LightPosition = glm::vec3(0.3f, 0.85f, 1.9f);
-	glm::vec3 m_LightColor = glm::vec3(1.0f);
-
-	float m_Time = 0.0f;
-	float m_Framerate = 0.0f;
 
 };
