@@ -1,7 +1,6 @@
 #include "MyLayer.h"
 
 #include <Mellow/Base/Input.h>
-#include <Mellow/Scene/Object3D.h>
 
 #include <imgui.h>
 
@@ -20,13 +19,11 @@ void CameraToggleCallback(void* params)
 }
 
 void MyLayer::OnAttach() {
-	// Check to see that OnAttach is called when layers are pushed.
-	MW_TRACE("'MyLayer' is being attached!");
 	// Make sure that the Render commands work
 	RenderCommand::SetClearColor(glm::vec4(0.1, 0.1, 0.12, 1.0));
 
 	// Shader
-	m_ShaderLib.Load("res/shaders/cool lighting n appropriate words.shader");
+	m_ShaderLib.Load("res/shaders/floor plane.shader");
 
 	// Camera Settings
 	m_CameraController.SetMouseSensitivity(0.7f);
@@ -34,6 +31,32 @@ void MyLayer::OnAttach() {
 	m_CameraController.BindActiveStateCallback(CameraToggleCallback);
 	m_CameraController.SetActiveStateCallbackParameterPtr(&m_CamToggleParams);
 	m_CameraController.SetActiveState(m_CamToggleParams.CurrentToggleState);
+
+	// Set up the floor mesh
+	float vertices[] =
+	{
+		-1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		 1.0f, 0.0f,  1.0f, 1.0f, 0.0f,
+		 1.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+		-1.0f, 0.0f, -1.0f, 0.0f, 1.0f,
+	};
+	uint32_t indices[] =
+	{
+		0, 1, 2,
+		2, 3, 0,
+	};
+	m_FloorPlaneMesh = CreateRef<Mesh>("floorPlane", vertices, sizeof(vertices), indices, sizeof(indices),
+		VertexLayout({
+			{"aPosition", DataType::Vec3},
+			{"aTexCoord", DataType::Vec2}
+		})
+	);
+	// Transform
+	m_FloorPlaneMesh->SetTransform({
+		glm::vec3(0.0f, -1.0f, 0.0f),
+		glm::vec3(0.0f),
+		glm::vec3(10.0f),
+	});
 
 }
 
@@ -55,8 +78,7 @@ bool MyLayer::OnKeyPress(KeyPressedEvent& e) {
 }
 
 void MyLayer::OnDetach() {
-	// Check to see that OnDetach is called during Application shutdown.
-	MW_TRACE("'MyLayer' is being shut down.");
+	// Do nothing I guess.
 }
 
 void MyLayer::OnEvent(Event& e) {
@@ -71,12 +93,15 @@ void MyLayer::OnUpdate(Timestep ts) {
 	m_CameraController.CheckInputs();
 	m_CameraController.Update(ts);
 
-	Ref<Shader>& shader = m_ShaderLib.Get("cool lighting n appropriate words");
+	Ref<Shader>& shader = m_ShaderLib.Get("floor plane");
 	shader->Use();
 	shader->SetVec3("uCameraPos", m_CameraController.GetCamera()->GetPosition());
 
 	shader->SetMat4("uProjectionMatrix", m_CameraController.GetCamera()->GetProjectionMatrixPerspective());
 	shader->SetMat4("uViewMatrix", m_CameraController.GetCamera()->GetViewMatrix());
+
+	shader->SetMat4("uModelMatrix", m_FloorPlaneMesh->GetModelMatrix());
+	RenderCommand::DrawIndexed(m_FloorPlaneMesh->GetVAO());
 }
 
 void MyLayer::OnImGuiRender()

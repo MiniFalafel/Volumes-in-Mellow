@@ -6,9 +6,11 @@
 
 #include "Mellow/Controllers/CameraController.h"
 
-#include "Mellow/Renderer/Geometry/Model.h"
-#include "Mellow/Renderer/Texture.h"
+#include "Mellow/Renderer/Renderer.h"
 #include "Mellow/Renderer/Shader.h"
+
+// Mesh
+#include "Mellow/Renderer/Geometry/Mesh.h"
 
 struct CameraToggleCallbackParams
 {
@@ -34,9 +36,12 @@ public:
 private:
 
 	CameraController m_CameraController;
-	CameraToggleCallbackParams m_CamToggleParams = { true, };
+	CameraToggleCallbackParams m_CamToggleParams = { false, };
 
 	// Shader
 	ShaderLibrary m_ShaderLib;
+
+	// Ground Plane
+	Ref<Mesh> m_FloorPlaneMesh;
 
 };
