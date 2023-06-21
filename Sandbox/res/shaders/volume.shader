@@ -28,6 +28,8 @@ uniform vec3 uVolumeBoxMax;
 
 uniform vec3 uCameraPos;
 
+uniform mat4 uInverseModelMatrix;
+
 struct hitInfo
 {
     bool hit;
@@ -43,8 +45,10 @@ in VS_OUT{
 
 void main()
 {
+    vec3 origin = vec3(uInverseModelMatrix * vec4(uCameraPos, 1.0));
     vec3 viewDir = normalize(fs_in.FragPos - uCameraPos);
-    hitInfo h = boxIntersect(uCameraPos, viewDir, uVolumeBoxMin, uVolumeBoxMax);
+    viewDir = normalize(vec3(uInverseModelMatrix * vec4(viewDir, 1.0)));
+    hitInfo h = boxIntersect(origin, viewDir, uVolumeBoxMin, uVolumeBoxMax);
 
     vec3 color = h.hit ? fs_in.FragPos : vec3(1.0, 0.0, 1.0);
 

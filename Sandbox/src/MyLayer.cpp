@@ -149,6 +149,8 @@ void MyLayer::OnUpdate(Timestep ts) {
 		// bounding box parameters
 		shader->SetVec3("uVolumeBoxMin", m_Volume->GetMin());
 		shader->SetVec3("uVolumeBoxMax", m_Volume->GetMax());
+		// inverse model
+		shader->SetMat4("uInverseModelMatrix", m_Volume->GetInverseModelMatrix());
 
 		// Draw the volume cube mesh
 		RenderCommand::DrawIndexed(m_Volume->GetMesh()->GetVAO());
@@ -229,4 +231,9 @@ VolumeCube::VolumeCube(glm::vec3 min, glm::vec3 max)
 glm::mat4 VolumeCube::GetModelMatrix()
 {
 	return m_Transform.GetModelMatrix();
+}
+
+glm::mat4 VolumeCube::GetInverseModelMatrix()
+{
+	return glm::inverse(GetModelMatrix());
 }

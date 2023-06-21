@@ -37,6 +37,7 @@ public:
 
 	// Get inverse model matrix
 	glm::mat4 GetModelMatrix();
+	glm::mat4 GetInverseModelMatrix();
 	// Get Mesh
 	Ref<Mesh> GetMesh() { return m_Mesh; }
 	// min and max
