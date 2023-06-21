@@ -1,3 +1,6 @@
+## This is really another project that happens to use what's done of Mellow so far (forked). I figured the Mellow readme might be useful though, so I've left it below.
+
+
 # Mellow Engine
 Mellow Engine is a game engine that I'm working on. While not the 
 first I've ever made, it will definitely be the most organized and 
