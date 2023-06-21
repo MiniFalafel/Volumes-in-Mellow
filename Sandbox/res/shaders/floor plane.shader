@@ -8,7 +8,7 @@ layout(location = 2) in vec3 aNormal;
 out VS_OUT{
     vec3 FragPos;
     vec2 TexCoords;
-    vec3 Normal;
+    mat3 TBN;
 } vs_out;
 
 uniform mat4 uProjectionMatrix;
@@ -19,7 +19,13 @@ void main() {
 
     vs_out.TexCoords = aTexCoords;
     vs_out.FragPos = vec3(uModelMatrix * vec4(aPos, 1.0));
-    vs_out.Normal = mat3(transpose(inverse(uModelMatrix))) * aNormal;
+    vec3 Normal = mat3(transpose(inverse(uModelMatrix))) * aNormal;
+    // Tangent and BiTangent
+    // crossed with some arbitratily random numbers (unlikely the normal will be the same or opposite)
+    vec3 Tangent = normalize(cross(vec3(0.09345, 0.398456, 0.39458), Normal));
+    vec3 BiTangent = normalize(cross(-Tangent, Normal));
+    vs_out.TBN = mat3(Tangent, BiTangent, normalize(Normal));
+
     gl_Position = uProjectionMatrix * uViewMatrix * vec4(vs_out.FragPos, 1.0);
 
 }
@@ -31,6 +37,7 @@ out vec4 FragColor;
 
 uniform sampler2D uBaseTexture;
 uniform sampler2D uRoughnessTexture;
+uniform sampler2D uNormalTexture;
 uniform float uTextureSampleSize;
 
 uniform vec3 uCameraPos;
@@ -43,23 +50,21 @@ uniform float uLightPower;
 in VS_OUT{
     vec3 FragPos;
     vec2 TexCoords;
-    vec3 Normal;
+    mat3 TBN;
 } fs_in;
 
-float getSpecularFromRoughness(float r, float maxSpec)
-{
-    return pow(256.0, 1.0 - r);
-    //return maxSpec - (maxSpec * r); // just interpolate I guess
-}
-
 void main() {
+
+    // Normal mapping
 
     // Base color
     vec2 texCoords = fs_in.TexCoords.xy * uTextureSampleSize;
     vec4 color = texture(uBaseTexture, texCoords);
 
     // Basic diffuse lighting
-    vec3 normal = normalize(fs_in.Normal);
+    vec3 normal = texture(uNormalTexture, texCoords).xyz;
+    normal = normal * 2.0 - 1.0;
+    normal = normalize(fs_in.TBN * normal);
     vec3 lightDir = normalize(fs_in.FragPos - uLightPos);
     float diffuse = max(dot(normal, -lightDir), 0.0);
 
@@ -74,6 +79,6 @@ void main() {
 
     vec3 lum = uLightColor * (diffuse + specular) * uLightPower * attenuation;
 
-    FragColor = vec4(lum * color.rgb, 1.0f);// vec4(fs_in.TexCoords, 0.0, 1.0);
+    FragColor = vec4(lum * color.rgb, 1.0f);
 
 }

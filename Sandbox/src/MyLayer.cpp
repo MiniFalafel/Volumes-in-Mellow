@@ -62,6 +62,7 @@ void MyLayer::OnAttach() {
 	// Floor textures
 	m_FloorTextureAlbedo = Texture2D::Create("res/textures/Substance_Graph_BaseColor.jpg");
 	m_FloorTextureRoughness = Texture2D::Create("res/textures/Substance_Graph_Roughness.jpg");
+	m_FloorTextureNormal = Texture2D::Create("res/textures/Substance_Graph_Normal.jpg");
 
 }
 
@@ -110,8 +111,10 @@ void MyLayer::OnUpdate(Timestep ts) {
 	// Bind textures
 	m_FloorTextureAlbedo->Bind(1);
 	m_FloorTextureRoughness->Bind(2);
+	m_FloorTextureNormal->Bind(3);
 	shader->SetInt("uBaseTexture", 1);
 	shader->SetInt("uRoughnessTexture", 2);
+	shader->SetInt("uNormalTexture", 3);
 	shader->SetFloat("uTextureSampleSize", m_FloorTextureScale);
 	// Light Uniforms
 	shader->SetVec3("uLightPos", m_PointLight.Position);

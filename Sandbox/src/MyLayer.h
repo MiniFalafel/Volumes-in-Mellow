@@ -46,6 +46,7 @@ private:
 	Ref<Mesh> m_FloorPlaneMesh;
 	Ref<Texture2D> m_FloorTextureAlbedo;
 	Ref<Texture2D> m_FloorTextureRoughness;
+	Ref<Texture2D> m_FloorTextureNormal;
 	float m_FloorTextureScale = 3.0f;
 	Transform3D m_FloorPlaneT;
 
@@ -58,9 +59,9 @@ private:
 	};
 
 	PointLight m_PointLight = {
-		glm::vec3(2.4f, 3.2f, 1.2f),
+		glm::vec3(2.4f, 0.41f, 1.2f),
 		glm::vec3(1.0f),
-		1.0f,
+		9.0f,
 	};
 
 };
