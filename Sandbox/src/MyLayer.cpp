@@ -35,10 +35,10 @@ void MyLayer::OnAttach() {
 	// Set up the floor mesh
 	float vertices[] =
 	{
-		-1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
-		 1.0f, 0.0f,  1.0f, 1.0f, 0.0f,
-		 1.0f, 0.0f, -1.0f, 1.0f, 1.0f,
-		-1.0f, 0.0f, -1.0f, 0.0f, 1.0f,
+		-1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		 1.0f, 0.0f,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		 1.0f, 0.0f, -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+		-1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
 	};
 	uint32_t indices[] =
 	{
@@ -48,15 +48,17 @@ void MyLayer::OnAttach() {
 	m_FloorPlaneMesh = CreateRef<Mesh>("floorPlane", vertices, sizeof(vertices), indices, sizeof(indices),
 		VertexLayout({
 			{"aPosition", DataType::Vec3},
-			{"aTexCoord", DataType::Vec2}
+			{"aTexCoord", DataType::Vec2},
+			{"aNormal", DataType::Vec3},
 		})
 	);
 	// Transform
-	m_FloorPlaneMesh->SetTransform({
+	m_FloorPlaneT = {
 		glm::vec3(0.0f, -1.0f, 0.0f),
 		glm::vec3(0.0f),
 		glm::vec3(10.0f),
-	});
+	};
+	m_FloorPlaneMesh->SetTransform(m_FloorPlaneT);
 	// Floor textures
 	m_FloorTextureAlbedo = Texture2D::Create("res/textures/Substance_Graph_BaseColor.jpg");
 	m_FloorTextureRoughness = Texture2D::Create("res/textures/Substance_Graph_Roughness.jpg");
@@ -93,6 +95,8 @@ void MyLayer::OnEvent(Event& e) {
 
 void MyLayer::OnUpdate(Timestep ts) {
 
+	m_FloorPlaneMesh->SetTransform(m_FloorPlaneT);
+
 	m_CameraController.CheckInputs();
 	m_CameraController.Update(ts);
 
@@ -109,6 +113,10 @@ void MyLayer::OnUpdate(Timestep ts) {
 	shader->SetInt("uBaseTexture", 1);
 	shader->SetInt("uRoughnessTexture", 2);
 	shader->SetFloat("uTextureSampleSize", m_FloorTextureScale);
+	// Light Uniforms
+	shader->SetVec3("uLightPos", m_PointLight.Position);
+	shader->SetVec3("uLightColor", m_PointLight.Color);
+	shader->SetFloat("uLightPower", m_PointLight.Power);
 
 	shader->SetMat4("uModelMatrix", m_FloorPlaneMesh->GetModelMatrix());
 	RenderCommand::DrawIndexed(m_FloorPlaneMesh->GetVAO());
@@ -119,15 +127,22 @@ void MyLayer::OnImGuiRender()
 	ImGui::Begin("Uniform Window");
 	if (ImGui::BeginTabBar("Shader Tabs I Guess"))
 	{
-		if (ImGui::BeginTabItem("A"))
+		if (ImGui::BeginTabItem("Ground Plane"))
 		{
 			ImGui::Text("Texture Scale");
-			ImGui::SliderFloat("Scale", &m_FloorTextureScale, 0.01f, 20.0f);
+			ImGui::SliderFloat("Sc.", &m_FloorTextureScale, 0.01f, 20.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
+			ImGui::Text("Plane Rotation");
+			ImGui::SliderFloat3("Rot.", &m_FloorPlaneT.Rotation[0], -180.0f, 180.0f); // To test if normals correct themselves.
 			ImGui::EndTabItem();
 		}
-		if(ImGui::BeginTabItem("B"))
+		if(ImGui::BeginTabItem("Point Light"))
 		{
-			ImGui::Text("Pranked");
+			ImGui::Text("Position");
+			ImGui::SliderFloat3("Pos", &m_PointLight.Position[0], -5.0f, 5.0f);
+			ImGui::Text("Color");
+			ImGui::ColorPicker3("Col", &m_PointLight.Color[0]);
+			ImGui::Text("Power");
+			ImGui::SliderFloat("Pow", &m_PointLight.Power, 0.0f, 3.0f);
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();

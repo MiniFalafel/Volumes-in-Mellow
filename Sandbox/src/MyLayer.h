@@ -47,5 +47,20 @@ private:
 	Ref<Texture2D> m_FloorTextureAlbedo;
 	Ref<Texture2D> m_FloorTextureRoughness;
 	float m_FloorTextureScale = 1.0f;
+	Transform3D m_FloorPlaneT;
+
+	// Lighting
+	struct PointLight
+	{
+		glm::vec3 Position;
+		glm::vec3 Color;
+		float Power;
+	};
+
+	PointLight m_PointLight = {
+		glm::vec3(2.4f, 3.2f, 1.2f),
+		glm::vec3(1.0f),
+		1.0f,
+	};
 
 };
