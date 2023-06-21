@@ -39,6 +39,9 @@ public:
 	glm::mat4 GetModelMatrix();
 	// Get Mesh
 	Ref<Mesh> GetMesh() { return m_Mesh; }
+	// min and max
+	glm::vec3 GetMin() { return m_Min; }
+	glm::vec3 GetMax() { return m_Max; }
 
 private:
 };

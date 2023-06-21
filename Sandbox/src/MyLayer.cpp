@@ -140,6 +140,10 @@ void MyLayer::OnUpdate(Timestep ts) {
 		shader->SetMat4("uViewMatrix", m_CameraController.GetCamera()->GetViewMatrix());
 		shader->SetMat4("uModelMatrix", m_Volume->GetModelMatrix());
 
+		// bounding box parameters
+		shader->SetVec3("uVolumeBoxMin", m_Volume->GetMin());
+		shader->SetVec3("uVolumeBoxMax", m_Volume->GetMax());
+
 		// Draw the volume cube mesh
 		RenderCommand::DrawIndexed(m_Volume->GetMesh()->GetVAO());
 	}
