@@ -46,11 +46,6 @@ hitInfo boxIntersect(vec3 rOrigin, vec3 rDir, vec3 bMin, vec3 bMax);
 
 float DensityInBox(vec3 samplePoint, vec3 bMin, vec3 bMax);
 
-float transmittance(float density)
-{
-    return exp(-density); 
-}
-
 in VS_OUT{
     vec3 FragPos;
 } fs_in;
@@ -68,32 +63,35 @@ void main()
     // split the volume into steps to sample the density at each step.
     float stepSize = (h.tmax - h.tmin) / uDensitySteps;
     vec3 p = origin + (h.tmin * viewDir);
-    float totalDensity = 0.0f;
-    float totalLight = 0.0f;
-    for (int step = 0; step < uDensitySteps; step++)
-    {
-        vec3 samplePos = p + step * stepSize;
-        totalDensity += DensityInBox(samplePos, uVolumeBoxMin, uVolumeBoxMax) * stepSize;
+    float transmittance = 1.0;
+    float light = 0.0;
 
-        // Sample incoming light
-        vec3 lightDir = normalize(samplePos - uLightPos);
-        hitInfo outRayHit = boxIntersect(samplePos, -lightDir, uVolumeBoxMin, uVolumeBoxMax);
-        float subStepSize = (outRayHit.tmax - outRayHit.tmin) / uDensitySteps;
-        float totalSampleDensity = 0.0f;
-        for (int subSampleStep = 0; subSampleStep < uDensitySteps; subSampleStep++)
+    for (int t = 0; t < uDensitySteps; t++)
+    {
+        p += t * stepSize * viewDir;
+        float density = DensityInBox(p, uVolumeBoxMin, uVolumeBoxMax) * stepSize;
+
+        // Get transmittance toward light source
+        vec3 lightDir = normalize(uLightPos - p);
+        hitInfo lightH = boxIntersect(p, lightDir, uVolumeBoxMin, uVolumeBoxMax);
+        float lightStepSize = (lightH.tmax - lightH.tmin) / uDensitySteps;
+        vec3 o = p;
+        float lightTransmittance = 1.0;
+        for (int s = 0; s < uDensitySteps; s++)
         {
-            vec3 subSPoint = samplePos + step * subStepSize;
-            totalSampleDensity += DensityInBox(subSPoint, uVolumeBoxMin, uVolumeBoxMax) * subStepSize;
+            o += s * lightStepSize * lightDir;
+            float d = DensityInBox(o, uVolumeBoxMin, uVolumeBoxMax) * lightStepSize;
+            lightTransmittance *= exp(-d);
         }
-        float tmn = transmittance(totalSampleDensity);
-        totalLight += tmn * transmittance(totalDensity);
+
+        light += density * transmittance * lightTransmittance;
+        transmittance *= exp(-density);
     }
 
-    float t = transmittance(totalDensity);
-    if (rand(fs_in.FragPos.xy) < t)
+    if (rand(fs_in.FragPos.xy) < transmittance)
         discard;
 
-    vec3 color = vec3(totalLight);
+    vec3 color = vec3(light);
 
 	FragColor = vec4(color, 1.0);
 }
