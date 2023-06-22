@@ -56,8 +56,8 @@ float rand(vec2 co) {
 
 float marchToLight(vec3 p)
 {
-    //vec3 lightDir = normalize(uLightPos - p);
-    vec3 lightDir = normalize(vec3(1, 2, 0.3));
+    vec3 lightDir = normalize(uLightPos - p);
+    //vec3 lightDir = normalize(vec3(1, 2, 0.3));
     hitInfo lightH = boxIntersect(p, lightDir, uVolumeBoxMin, uVolumeBoxMax);
     float lightStepSize = (lightH.tmax - lightH.tmin) / uDensitySteps;
     float densityToLight = 0.0;
@@ -86,6 +86,8 @@ void main()
     {
         p += stepSize * viewDir;
         float density = DensityInBox(p, uVolumeBoxMin, uVolumeBoxMax) * stepSize;
+        if (density < 0.01)
+            discard;
 
         // Get transmittance toward light source
         float lightTransmittance = marchToLight(p);
@@ -136,7 +138,7 @@ float DensityInBox(vec3 samplePoint, vec3 bMin, vec3 bMax)
 
     float dist = length((samplePoint / dimensions) - center); // normalize the distance based on the dimensions
 
-    float density = 1 - dist;
+    float density = max(1 - dist, 0.0) * uDensity;
 
     return density; // maybe replace this with a noise sampler later on?
 }
