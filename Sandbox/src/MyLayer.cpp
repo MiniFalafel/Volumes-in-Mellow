@@ -67,13 +67,6 @@ void MyLayer::OnAttach() {
 
 	// Volume
 	m_Volume = CreateRef<VolumeCube>(glm::vec3(-0.5f), glm::vec3(0.5f), 0.5f);
-	m_Volume->SetTransform(
-		{
-			glm::vec3(0.0f),
-			glm::vec3(0.0f),
-			glm::vec3(1.0f),
-		}
-	);
 }
 
 bool MyLayer::OnMouseMovement(MouseMovedEvent& e) {
@@ -144,7 +137,6 @@ void MyLayer::OnUpdate(Timestep ts) {
 		// matrices
 		shader->SetMat4("uProjectionMatrix", m_CameraController.GetCamera()->GetProjectionMatrixPerspective());
 		shader->SetMat4("uViewMatrix", m_CameraController.GetCamera()->GetViewMatrix());
-		shader->SetMat4("uModelMatrix", m_Volume->GetModelMatrix());
 		// Light Uniforms
 		shader->SetVec3("uLightPos", m_PointLight.Position);
 		shader->SetVec3("uLightColor", m_PointLight.Color);
@@ -154,8 +146,6 @@ void MyLayer::OnUpdate(Timestep ts) {
 		shader->SetVec3("uVolumeBoxMin", m_Volume->GetMin());
 		shader->SetVec3("uVolumeBoxMax", m_Volume->GetMax());
 		shader->SetFloat("uDensity", m_Volume->GetDensity());
-		// inverse model
-		shader->SetMat4("uInverseModelMatrix", m_Volume->GetInverseModelMatrix());
 
 		// Draw the volume cube mesh
 		RenderCommand::DrawIndexed(m_Volume->GetMesh()->GetVAO());
@@ -187,20 +177,19 @@ void MyLayer::OnImGuiRender()
 		}
 		if (ImGui::BeginTabItem("Volume 'Cube'"))
 		{
-			Transform3D t = m_Volume->GetTransform();
-			ImGui::Text("Translation");
-			ImGui::SliderFloat3("tr", &t.Position[0], -3.0f, 3.0f);
-			ImGui::Text("Rotation");
-			ImGui::SliderFloat3("rot", &t.Rotation[0], -180.0f, 180.0f);
-			ImGui::Text("Scale");
-			ImGui::SliderFloat3("sc", &t.Scale[0], 0.25, 5.0f);
+			glm::vec3 min = m_Volume->GetMin();
+			glm::vec3 max = m_Volume->GetMax();
+			ImGui::Text("Bounding Box Min");
+			ImGui::SliderFloat3("min", &min[0], -20.0f, 20.0f);
+			ImGui::Text("Bounding Box Max");
+			ImGui::SliderFloat3("max", &max[0], -20.0f, 20.0f);
+			m_Volume->SetMin(min);
+			m_Volume->SetMax(max);
 
 			float density = m_Volume->GetDensity();
 			ImGui::Text("Density");
 			ImGui::SliderFloat("d", &density, 0.01f, 20.0f);
 			m_Volume->SetDensity(density);
-
-			m_Volume->SetTransform(t);
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();
@@ -249,14 +238,4 @@ VolumeCube::VolumeCube(glm::vec3 min, glm::vec3 max, float density)
 			{"aPosition", DataType::Vec3},
 		})
 	);
-}
-
-glm::mat4 VolumeCube::GetModelMatrix()
-{
-	return m_Transform.GetModelMatrix();
-}
-
-glm::mat4 VolumeCube::GetInverseModelMatrix()
-{
-	return glm::inverse(GetModelMatrix());
 }

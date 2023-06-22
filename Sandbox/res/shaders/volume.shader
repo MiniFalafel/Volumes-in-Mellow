@@ -9,11 +9,10 @@ out VS_OUT{
 
 uniform mat4 uProjectionMatrix;
 uniform mat4 uViewMatrix;
-uniform mat4 uModelMatrix;
 
 void main() {
 
-    vs_out.FragPos = vec3(uModelMatrix * vec4(aPos, 1.0));
+    vs_out.FragPos = aPos;
     gl_Position = uProjectionMatrix * uViewMatrix * vec4(vs_out.FragPos, 1.0);
 
 }
@@ -25,7 +24,6 @@ out vec4 FragColor;
 
 uniform vec3 uVolumeBoxMin;
 uniform vec3 uVolumeBoxMax;
-uniform mat4 uInverseModelMatrix;
 
 uniform vec3 uCameraPos;
 
@@ -63,9 +61,8 @@ float rand(vec2 co) {
 
 void main()
 {
-    vec3 origin = vec3(uInverseModelMatrix * vec4(uCameraPos, 1.0));
+    vec3 origin = uCameraPos;
     vec3 viewDir = normalize(fs_in.FragPos - uCameraPos);
-    viewDir = normalize(mat3(uInverseModelMatrix) * viewDir); // mat3 to remove the translation (because we were applying it twice).
     hitInfo h = boxIntersect(origin, viewDir, uVolumeBoxMin, uVolumeBoxMax);
 
     // split the volume into steps to sample the density at each step.
@@ -96,7 +93,7 @@ void main()
     if (rand(normalize(fs_in.FragPos - uCameraPos).xy) < t)
         discard;
 
-    vec3 color = vec3(totalLight);
+    vec3 color = vec3(1.0, 0.0, 1.0);
 
 	FragColor = vec4(color, 1.0);
 }
