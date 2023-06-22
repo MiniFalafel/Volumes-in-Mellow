@@ -62,7 +62,7 @@ float rand(vec2 co) {
 void main()
 {
     vec3 origin = uCameraPos;
-    vec3 viewDir = normalize(mat3(inverse(uViewMatrix)) * fs_in.FragPos);// -uCameraPos);
+    vec3 viewDir = normalize(mat3(inverse(uViewMatrix)) * fs_in.FragPos);
     hitInfo h = boxIntersect(origin, viewDir, uVolumeBoxMin, uVolumeBoxMax);
 
     // split the volume into steps to sample the density at each step.
@@ -90,10 +90,10 @@ void main()
     }
 
     float t = transmittance(totalDensity);
-    if (rand(normalize(fs_in.FragPos - uCameraPos).xy) < t)
+    if (rand(fs_in.FragPos.xy) < t)
         discard;
 
-    vec3 color = vec3(1.0, 0.0, 1.0);
+    vec3 color = vec3(totalLight);
 
 	FragColor = vec4(color, 1.0);
 }
