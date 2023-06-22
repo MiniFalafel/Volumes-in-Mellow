@@ -68,7 +68,7 @@ void main()
 
     for (int t = 0; t < uDensitySteps; t++)
     {
-        p += t * stepSize * viewDir;
+        p += stepSize * viewDir;
         float density = DensityInBox(p, uVolumeBoxMin, uVolumeBoxMax) * stepSize;
 
         // Get transmittance toward light source
@@ -76,19 +76,18 @@ void main()
         hitInfo lightH = boxIntersect(p, lightDir, uVolumeBoxMin, uVolumeBoxMax);
         float lightStepSize = (lightH.tmax - lightH.tmin) / uDensitySteps;
         vec3 o = p;
-        float lightTransmittance = 1.0;
+        float densityToLight = 0.0;
         for (int s = 0; s < uDensitySteps; s++)
         {
-            o += s * lightStepSize * lightDir;
-            float d = DensityInBox(o, uVolumeBoxMin, uVolumeBoxMax) * lightStepSize;
-            lightTransmittance *= exp(-d);
+            o += lightStepSize * lightDir;
+            densityToLight += DensityInBox(o, uVolumeBoxMin, uVolumeBoxMax) * lightStepSize;
         }
 
-        light += density * transmittance * lightTransmittance;
+        light += density * transmittance * exp(-densityToLight);
         transmittance *= exp(-density);
     }
 
-    if (rand(fs_in.FragPos.xy) < transmittance)
+    if (transmittance > 0.99)
         discard;
 
     vec3 color = vec3(light);
