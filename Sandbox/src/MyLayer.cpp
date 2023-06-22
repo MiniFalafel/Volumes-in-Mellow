@@ -145,6 +145,10 @@ void MyLayer::OnUpdate(Timestep ts) {
 		shader->SetMat4("uProjectionMatrix", m_CameraController.GetCamera()->GetProjectionMatrixPerspective());
 		shader->SetMat4("uViewMatrix", m_CameraController.GetCamera()->GetViewMatrix());
 		shader->SetMat4("uModelMatrix", m_Volume->GetModelMatrix());
+		// Light Uniforms
+		shader->SetVec3("uLightPos", m_PointLight.Position);
+		shader->SetVec3("uLightColor", m_PointLight.Color);
+		shader->SetFloat("uLightPower", m_PointLight.Power);
 
 		// volume parameters
 		shader->SetVec3("uVolumeBoxMin", m_Volume->GetMin());
