@@ -7,9 +7,9 @@ namespace Mellow {
 		MW_PROFILE_FUNCTION();
 
 		glm::vec3 front;
-		front.x = -glm::sin(glm::radians(m_Rotation.y)) * glm::cos(glm::radians(m_Rotation.z));
-		front.y =  glm::sin(glm::radians(m_Rotation.x));
-		front.z = -glm::cos(glm::radians(m_Rotation.y)) * glm::cos(glm::radians(m_Rotation.x));
+		front.x = glm::cos(glm::radians(m_Rotation.y)) * glm::cos(glm::radians(m_Rotation.x));
+		front.y = glm::sin(glm::radians(m_Rotation.x));
+		front.z = glm::sin(glm::radians(m_Rotation.y)) * glm::cos(glm::radians(m_Rotation.x));
 		// Note that we might want to normalize this because there may be roundoff error
 		// It's likely extremely negligible, so I'm ignoring it for now (unless it becomes an issue).
 		m_Front = front;

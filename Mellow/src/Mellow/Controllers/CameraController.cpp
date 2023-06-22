@@ -47,7 +47,7 @@ namespace Mellow {
 			rotation.x -= dY;
 			// This line will change once we add proper constraints
 			rotation.x = glm::min(glm::max(rotation.x, -89.0f), 89.0f);
-			rotation.y -= dX;
+			rotation.y += dX;
 
 			m_Camera->SetRotation(rotation);
 

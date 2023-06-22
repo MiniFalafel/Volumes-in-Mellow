@@ -23,7 +23,7 @@ namespace Mellow {
 		CameraController(const float& aspectRatio,
 			const glm::vec3& position = glm::vec3(0.0), const glm::vec3& rotation = glm::vec3(0.0));
 
-		Ref<Camera>& GetCamera() { return m_Camera; }
+		Ref<Camera> GetCamera() { return m_Camera; }
 
 		void OnMouseMovement(MouseMovedEvent& e);
 
