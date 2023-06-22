@@ -202,38 +202,19 @@ VolumeCube::VolumeCube(glm::vec3 min, glm::vec3 max, float density)
 {
 	float vertices[] =
 	{
-		min[0], min[1], min[2],
-		max[0], min[1], min[2],
-		max[0], min[1], max[2],
-		min[0], min[1], max[2],
-		min[0], max[1], min[2],
-		max[0], max[1], min[2],
-		max[0], max[1], max[2],
-		min[0], max[1], max[2],
+		-1.0, -1.0, -1.0,
+		 1.0, -1.0, -1.0,
+		 1.0,  1.0, -1.0,
+		-1.0,  1.0, -1.0,
 	};
 
 	uint32_t indices[] =
 	{
 		0, 1, 2,
 		2, 3, 0,
-
-		0, 1, 5,
-		5, 4, 0,
-
-		1, 2, 6,
-		6, 5, 1,
-
-		2, 3, 7,
-		7, 6, 2,
-
-		3, 0, 4,
-		4, 7, 3,
-
-		4, 5, 6,
-		6, 7, 4,
 	};
 
-	m_Mesh = CreateRef<Mesh>("hadn't thought this far yet", vertices, sizeof(vertices), indices, sizeof(indices),
+	m_QuadMesh = CreateRef<Mesh>("renderQuad", vertices, sizeof(vertices), indices, sizeof(indices),
 		VertexLayout({
 			{"aPosition", DataType::Vec3},
 		})

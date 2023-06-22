@@ -23,7 +23,7 @@ using namespace Mellow;
 class VolumeCube
 {
 	// mesh data
-	Ref<Mesh> m_Mesh;
+	Ref<Mesh> m_QuadMesh;
 	// shader params
 	glm::vec3 m_Min, m_Max;
 	float m_Density;
@@ -32,7 +32,7 @@ public:
 	VolumeCube(glm::vec3 min, glm::vec3 max, float density);
 
 	// Getters
-	Ref<Mesh> GetMesh() { return m_Mesh; }
+	Ref<Mesh> GetMesh() { return m_QuadMesh; }
 	glm::vec3 GetMin() { return m_Min; }
 	glm::vec3 GetMax() { return m_Max; }
 	float GetDensity() { return m_Density; }

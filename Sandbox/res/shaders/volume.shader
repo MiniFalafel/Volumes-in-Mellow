@@ -8,12 +8,11 @@ out VS_OUT{
 } vs_out;
 
 uniform mat4 uProjectionMatrix;
-uniform mat4 uViewMatrix;
 
 void main() {
 
     vs_out.FragPos = aPos;
-    gl_Position = uProjectionMatrix * uViewMatrix * vec4(vs_out.FragPos, 1.0);
+    gl_Position = uProjectionMatrix * vec4(vs_out.FragPos, 1.0);
 
 }
 
@@ -26,6 +25,7 @@ uniform vec3 uVolumeBoxMin;
 uniform vec3 uVolumeBoxMax;
 
 uniform vec3 uCameraPos;
+uniform mat4 uViewMatrix;
 
 uniform int uDensitySteps = 4; // default of 4
 uniform float uDensity;
@@ -62,7 +62,7 @@ float rand(vec2 co) {
 void main()
 {
     vec3 origin = uCameraPos;
-    vec3 viewDir = normalize(fs_in.FragPos - uCameraPos);
+    vec3 viewDir = normalize(mat3(inverse(uViewMatrix)) * fs_in.FragPos);// -uCameraPos);
     hitInfo h = boxIntersect(origin, viewDir, uVolumeBoxMin, uVolumeBoxMax);
 
     // split the volume into steps to sample the density at each step.
