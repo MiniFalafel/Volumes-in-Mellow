@@ -54,6 +54,22 @@ float rand(vec2 co) {
     return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
+float marchToLight(vec3 p)
+{
+    //vec3 lightDir = normalize(uLightPos - p);
+    vec3 lightDir = normalize(vec3(1, 2, 0.3));
+    hitInfo lightH = boxIntersect(p, lightDir, uVolumeBoxMin, uVolumeBoxMax);
+    float lightStepSize = (lightH.tmax - lightH.tmin) / uDensitySteps;
+    float densityToLight = 0.0;
+    for (int s = 0; s < uDensitySteps; s++)
+    {
+        p += lightStepSize * lightDir;
+        densityToLight += DensityInBox(p, uVolumeBoxMin, uVolumeBoxMax) * lightStepSize;
+    }
+
+    return exp(-densityToLight);
+}
+
 void main()
 {
     vec3 origin = uCameraPos;
@@ -72,18 +88,9 @@ void main()
         float density = DensityInBox(p, uVolumeBoxMin, uVolumeBoxMax) * stepSize;
 
         // Get transmittance toward light source
-        vec3 lightDir = normalize(uLightPos - p);
-        hitInfo lightH = boxIntersect(p, lightDir, uVolumeBoxMin, uVolumeBoxMax);
-        float lightStepSize = (lightH.tmax - lightH.tmin) / uDensitySteps;
-        vec3 o = p;
-        float densityToLight = 0.0;
-        for (int s = 0; s < uDensitySteps; s++)
-        {
-            o += lightStepSize * lightDir;
-            densityToLight += DensityInBox(o, uVolumeBoxMin, uVolumeBoxMax) * lightStepSize;
-        }
+        float lightTransmittance = marchToLight(p);
 
-        light += density * transmittance * exp(-densityToLight);
+        light += density * transmittance * lightTransmittance;
         transmittance *= exp(-density);
     }
 
@@ -124,5 +131,12 @@ hitInfo boxIntersect(vec3 rOrigin, vec3 rDir, vec3 bMin, vec3 bMax)
 
 float DensityInBox(vec3 samplePoint, vec3 bMin, vec3 bMax)
 {
-    return uDensity; // maybe replace this with a noise sampler later on?
+    vec3 center = (bMin + bMax) / 2.0;
+    vec3 dimensions = bMax - bMin;
+
+    float dist = length((samplePoint / dimensions) - center); // normalize the distance based on the dimensions
+
+    float density = 1 - dist;
+
+    return density; // maybe replace this with a noise sampler later on?
 }
